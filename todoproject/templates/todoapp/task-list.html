@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Задачи</title>
+</head>
+<body>
+  <h1>Мои задачи</h1>
+  <ul>
+      {% for task in my_tasks %}
+        <h2><a href="{% url 'task-detail' task.pk}">{{ task.title }}</a> </h2>
+      {% endfor %}
+  </ul>
+  <a href="{% url 'task-list'%}">Назад</a>
+
+</body>
+</html>
