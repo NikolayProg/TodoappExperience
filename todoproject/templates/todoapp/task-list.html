@@ -1,17 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Задачи</title>
-</head>
-<body>
-  <h1>Мои задачи</h1>
-  <ul>
-      {% for task in my_tasks %}
-        <h2><a href="{% url 'task-detail' task.pk}">{{ task.title }}</a> </h2>
-      {% endfor %}
-  </ul>
-  <a href="{% url 'task-list'%}">Назад</a>
+{% extends "todoapp/index.html" %}
 
-</body>
-</html>
+{% block title %}
+<h1>Список задач</h1>
+{% endblock %}
+
+{% block content %}
+  {% for task in cat_tasks %}
+    <table>
+        <td><a href="{% url 'task-del' task.pk %}">X</a></td>
+        <td><a href="{% url 'task-detail' task.pk %}">{{ task.title }}</a></td>
+    </table>
+  {% endfor %}
+  <button><a href="{% url 'add-task' category.id %}">Добавить задачу</a></button>
+  <a href="{% url 'home'%}">Назад</a>
+{% endblock %}
+
+
+
+

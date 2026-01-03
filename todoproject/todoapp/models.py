@@ -8,10 +8,13 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = 'Категории'
+
 class Task(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     complete = models.BooleanField(default=False)
     date = models.DateField(auto_now_add=True)
     do_before = models.DateField()
@@ -19,7 +22,9 @@ class Task(models.Model):
     def __str__(self):
         return self.title
 
-
+    class Meta:
+        verbose_name = 'Задача'
+        verbose_name_plural = 'Задачи'
 
 
     

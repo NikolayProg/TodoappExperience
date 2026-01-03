@@ -1,42 +1,17 @@
+{% extends "todoapp/index.html" %}
 {% load qr_code %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ task.title }}</title>
-      <style>
-        .checkbox {
-            width: 30px;
-            height: 30px;
-            border: 2px solid #000; /* Черная рамка */
-            display: inline-block;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 20px; /* Размер шрифта для галочки */
-            line-height: 30px; /* Центрирование по вертикали */
-        }
-        .checked {
-            background-color: #4CAF50; /* Цвет фона для галочки */
-            color: white; /* Цвет текста для галочки */
-        }
-    </style>
-</head>
-<body>
-  <h1>{{ task.title }} </h1>
-  <p>{{ task.date }}</p>
-  <p>{{ task.description }}</p>
-  <div class="checkbox {% if task.completed %}checked{% endif %}">
-      {% if task.completed %}✔{% endif %}
-  </div>
-  <p>Выполнить до {{task.do_before}}</p>
-  {% if task.do_before < datetime.now %}
-    <p>Срок выполнения вышел!!!</p>
-  {% endif %}
-  <div>
-    {# <img src="{% qr_url_from_text 'Hello World!' %}" alt="Hello World!"> #}
-    <img src="{% qr_url_from_text 'https://vk.com' %}" alt="ВКонтакте">
-  </div>
 
-</body>
-</html>
+{% block title %}
+    <h1>{{ task.title }} </h1>
+{% endblock %}
+
+{% block content %}
+  <p>{{ task.description }}</p>
+  <p>{{ task.date }}</p>
+  <p>Выполнить до {{task.do_before}}</p>
+    {% if task.do_before < datetime.now %}
+      <p>Срок выполнения вышел!!!</p>
+    {% endif %}
+  <a href="{% url 'task-list' task.category.id %}">Назад</a>
+{% endblock %}

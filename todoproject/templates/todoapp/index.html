@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            justify-content: center;
+            background-color: #f0f0f0;
+        }
+        .shimmer {
+            font-size: 40px;
+            font-weight: bold;
+            background: linear-gradient(270deg, #ff0080, #ff8c00, #00c6ff, #00ff8c);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    </style>
+    <title>
+        {% block title %}
+        Мои задачи
+        {% endblock%}
+    </title>
+</head>
+<body>
+    <header>
+        <h1>Добро пожаловать!</h1>
+              <a class="shimmer" href="{% url 'wish-qr' %}">Показать пожелание</a>
+    </header>
+    <main>
+       {% for category in categories %}
+         <table>
+             <td><a href="{% url 'c-del' category.id %}">X</a></td>
+             <td><a href="{% url 'task-list' category.pk %}">{{ category.name }}</a></td>
+         </table>
+       {% endfor %}
+
+        {% block content %}
+            <button><a href="{% url 'add-c' %}">Добавить категорию</a></button>
+        {% endblock %}
+    </main>
+    <hr />
+    <hr />
+    <hr />
+    <footer>
+        <p>2025 Мой сайт</p>
+    </footer>
+
+
+</body>
+</html>
