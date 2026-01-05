@@ -12,8 +12,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import urllib3
 
 load_dotenv()
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +33,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
+AUTH_KEY = os.getenv('AUTH_KEY')
 
 
 # Application definition

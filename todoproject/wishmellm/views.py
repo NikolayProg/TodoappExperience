@@ -1,58 +1,93 @@
+import base64
 from io import BytesIO
 from django.conf import settings
 from django.http import HttpResponse
 import requests
 from django.shortcuts import render
+import json
 from django.views import View
 import qrcode
-from .models import Wish
+import requests
+from openai.resources.containers.files import content
 
 
 class OpenRouterChatView(View):
 
     def get(self, request):
-        # Запрос к нейросети для генерации пожелания
         wish_text = self.get_wish_from_neural_network()
 
         if wish_text:
-            # Генерация QR-кода из текста пожелания
             qr_code_image = self.generate_qr_code(wish_text)
-
-            # wish_qr = Wish.objects.create(qr=qr_code_image)
-            # wish_qr.save() #оставить для тестов, потом может убрать
-
             return HttpResponse(qr_code_image.getvalue(), content_type='image/png')
-
         else:
             return render(request, 'wishmellm/wish_response.html', {
                 'error': "Не удалось получить пожелание от нейросети."
             })
 
+    def get_access_token(self):
+        auth_key = settings.AUTH_KEY
+        url = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth"
+        auth_header = f'Basic {auth_key}'
+
+        payload = {
+            'scope': 'GIGACHAT_API_PERS'
+        }
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'RqUID': 'e229d4e8-95ac-4f7c-be97-3ac165adc345',
+            'Authorization': auth_header,
+        }
+
+        response = requests.request("POST", url, headers=headers, data=payload, verify=False)
+
+        if response.status_code != 200:
+            print("Ошибка при получении токена:", response.text)
+            return
+
+        token = response.json().get('access_token')
+
+        if not token:
+            print("Токен не получен")
+        return token
+
     def get_wish_from_neural_network(self):
-        api_key = settings.OPENROUTER_API_KEY
-        user_message = "Offer a positive wish on russian language."
+        url_ans = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
+        token = self.get_access_token()
+        user_message = ("Предложи позитивное пожелание на русском языке, состоящее не более, чем из 20 слов.")
 
-        response = requests.post(
-            url="https://openrouter.ai/api/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": "deepseek/deepseek-r1-0528:free",
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": user_message
-                    }
-                ]
-            }
-        )
+        payload = {"model": "GigaChat",
+                   "messages": [
+                       {
+                           "content": user_message,
+                            "role": "user",
+                               }
+                   ],
+                   "stream": False,
+                   "update_interval": 0}
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f'Bearer {token}',
+            "Content-Type": "application/json",
+        }
 
-        if response.status_code == 200:
-            api_response = response.json()
-            return api_response.get("choices", [{}])[0].get("message", {}).get("content", "No response")
-        return "Получить пожелание не получилось. Нейросеть занята"
+        print("Отправляемый JSON:", json.dumps(payload, ensure_ascii=False))
+
+        response = requests.request("POST", url_ans, headers=headers, json=payload, verify=False)
+
+        if response.status_code != 200:
+            print("Ошибка при запросе к модели:", response.text)
+            return
+
+        answer = response.json()
+        print("Ответ нейросети:", answer)
+
+        if 'choices' in answer and len(answer['choices']) > 0:
+            wish_text = answer['choices'][0]['message']['content']
+            return wish_text
+        else:
+            print("Ответ не содержит ожидаемого текста.")
+            return None
 
     def generate_qr_code(self, text):
         # Генерация QR-кода
