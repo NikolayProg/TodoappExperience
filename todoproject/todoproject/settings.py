@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
 AUTH_KEY = os.getenv('AUTH_KEY')
 
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'todoapp',
     'qr_code',
     'wishmellm',
+    'django.contrib.postgres',
 ]
 
 MIDDLEWARE = [
@@ -83,13 +84,29 @@ WSGI_APPLICATION = 'todoproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+USE_POSTGRES = os.getenv('USE_POSTGRES', 'False') == 'True'
 
+if USE_POSTGRES:
+    DATABASES = {
+        'default': {
+            #'ENGINE': 'django.db.backends.sqlite3',
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB', 'my_db'),
+            'USER': os.getenv('POSTGRES_USER', 'my_user'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', '123'),
+            'HOST': 'localhost',
+            'PORT': '5432'
+
+        }
+    }
+
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
